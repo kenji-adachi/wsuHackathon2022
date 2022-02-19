@@ -1,10 +1,10 @@
 # wsuHackathon2022
-WSU Hackathon 2022 Project
+**WSU Hackathon 2022 Project**
 
-Developers: 
+**Developers: **
 -Kenji Adachi-
 -Bobby Templin-
 
-Project Description:
+**Project Description:**
 -insert here-
 
