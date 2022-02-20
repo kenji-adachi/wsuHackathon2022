@@ -1,6 +1,14 @@
-import sqlite3
+import psycopg2
 
-connection = sqlite3.connect('cubhubs.db')
+file = open("text.txt", "r")
+text = file.read()
+
+connection = psycopg2.connect(
+    host = "localhost",
+    database = "cubhubs",
+    user = "postgres",
+    password = text
+)
 cursor = connection.cursor()
 
 def prototype_ui():
