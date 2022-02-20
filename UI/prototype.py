@@ -1,7 +1,8 @@
 import psycopg2
 import base64
 import datetime
-
+import time
+from datetime import datetime as dt
 decMessage = base64.b64decode("ZG9nczJjYXRzMA==").decode("utf-8")
 
 connection = psycopg2.connect(
@@ -42,27 +43,21 @@ def view_avail():
     rows = cursor.fetchall()
 
     for row in rows:
-        for col in row:
-            print(col, end=' ')
-        print()
-    
+        print("Room Number: " + row[0] + " Building Name: " + row[1] + " Room State: " + str(row[2]) + " Start Time: " + str(row[3]) + " End Time: " + str(row[4]) )
+
 
 def reserve():
-    sql = '''
-            INSERT INTO reservations(roomnumber, buildingname, starttime, endtime)
-            VALUES(110, 'Spark', '03:00:00', '06:00:00')
-        '''
+    buildingName = 'Spark'
+    roomNumber = '111'
+    startDate = datetime.datetime(2022, 2, 17, 8, 0, 0) # 2/20/2022 08:00:00
+    endDate = datetime.datetime(2022, 2, 17, 9, 0, 0) # 2/20/2022 09:00:00
+    startWeekDay = datetime.date(startDate.year, startDate.month, startDate.day).weekday()
+    endWeekDay = datetime.date(endDate.year, endDate.month, endDate.day).weekday()
 
-
-    startTime = ''
-    dateDay = 19 # This will all be in one variable
-    dateMonth = 2
-    dateYear = 2022
-    weekDay = datetime.date(dateYear, dateDay, dateMonth).weekday()
-    buildingName = ''
-    buildingHoursSQL = '''
-            SELECT buildingname as buildingName FROM building_hours
-        '''
+    # grab the building hours based off building name
+    buildingHoursSQL = "SELECT * FROM building_hours WHERE buildingname ='" + buildingName + "'"
+    
+    # grab individual building hours
     cursor.execute(buildingHoursSQL)
     buildingHours = cursor.fetchall()
     buildingWeekOpen = buildingHours[0][1] # hardcoded based off of the table design
@@ -70,25 +65,51 @@ def reserve():
     buildingWeekendOpen = buildingHours[0][3]
     buildingWeekendClose = buildingHours[0][4]
 
+    reserveSQL = "INSERT INTO reservations(roomnumber, buildingname, roomstate, starttime, endtime) VALUES('" + roomNumber +"'"",'" + buildingName +"', '" + str(0) + "','"+ str(startDate) +"' , '" + str(endDate) +"')"
+    
     # check the building_hours table to see if the room is open
-    if weekDay <= 4: # week day (0 = day 1)
-        if startTime >= buildingWeekOpen and startTime <= buildingWeekClose:
-            try:
-                cursor.execute(sql)
-            except psycopg2.IntegrityError as e:
-                print("** An error has occurred! (Are you sure you entered the right room number?) **") 
-        else:
-            print("** This building is be closed during your reservation time! **")
+    if is_building_open(startDate, buildingName) and is_building_open(endDate, buildingName):
+        try:
+            cursor.execute(reserveSQL)
+        except psycopg2.IntegrityError as e:
+            print("** An error has occurred! (Are you sure you entered the right room number?) **") 
+    else:
+        print("This building is closed during your reservation time!")
+           
     
+def is_building_open(date, buildingName):
+    weekDay = datetime.date(date.year, date.month, date.day).weekday()
+    timeSlot = datetime.time(date.hour, date.minute, date.second)
+    # grab the building hours based off building name
+    buildingHoursSQL = "SELECT * FROM building_hours WHERE buildingname ='" + buildingName + "'"
     
-   
+    # grab individual building hours
+    cursor.execute(buildingHoursSQL)
+    buildingHours = cursor.fetchall()
+    buildingWeekOpen = buildingHours[0][1] # hardcoded based off of the table design
+    buildingWeekClose = buildingHours[0][2]
+    buildingWeekendOpen = buildingHours[0][3]
+    buildingWeekendClose = buildingHours[0][4]
 
+    if weekDay <= 4:  # week day (0 = day 1)
+        if timeSlot >= buildingWeekOpen and timeSlot <= buildingWeekClose:
+            return True
+        else:
+            return False
+    else: # ensure further error checking if project is to be continued past hackathon 
+        if timeSlot >= buildingWeekendOpen and timeSlot <= buildingWeekendClose:
+            return True
+        else:
+            return False
 
 def edit_reserve():
     pass
 
 def cancel_reserve():
-    pass
-
+    roomNumber = '111'
+    buildingName = 'Spark'
+    startDate = datetime.datetime(2022, 2, 17, 8, 0, 0) # 2/20/2022 08:00:00
+    deleteSQL = "DELETE FROM reservations WHERE roomnumber = '" + roomNumber + "' AND buildingname = '" + buildingName + "' AND starttime = '" + str(startDate) + "'"
+    cursor.execute(deleteSQL)
 prototype_ui()
     
