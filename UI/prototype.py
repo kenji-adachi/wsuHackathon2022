@@ -48,12 +48,29 @@ def view_avail():
 
 def reserve():
     buildingName = 'Spark'
-    roomNumber = '111'
+    roomNumber = '110'
     startDate = datetime.datetime(2022, 2, 17, 8, 0, 0) # 2/20/2022 08:00:00
     endDate = datetime.datetime(2022, 2, 17, 9, 0, 0) # 2/20/2022 09:00:00
+    print(startDate)
     startWeekDay = datetime.date(startDate.year, startDate.month, startDate.day).weekday()
     endWeekDay = datetime.date(endDate.year, endDate.month, endDate.day).weekday()
 
+    availableSQL = "SELECT * FROM reservations WHERE roomnumber = '" + roomNumber + "' AND buildingname = '" + buildingName + "'"  
+    cursor.execute(availableSQL)  
+    if cursor.rowcount != 0:
+        # convert start and end time to datetime variables
+        availableSQLData = cursor.fetchall()
+        originEndTime = availableSQLData[0][3]
+        originEndTime = originEndTime[:-2]
+        originEndTime = dt.strptime(originEndTime, '%Y-%m-%d %H:%M:%S')
+        originStartTime = availableSQLData[0][2]
+        originStartTime = originStartTime[:-2]
+        originStartTime = dt.strptime(originStartTime, '%Y-%m-%d %H:%M:%S')
+
+        if ((startDate < originEndTime) or (endDate > originStartTime))  or (endDate < startDate):
+            print("This room is reserved!")
+            return
+    
     # grab the building hours based off building name
     buildingHoursSQL = "SELECT * FROM building_hours WHERE buildingname ='" + buildingName + "'"
     
@@ -75,7 +92,7 @@ def reserve():
             print("** An error has occurred! (Are you sure you entered the right room number?) **") 
     else:
         print("This building is closed during your reservation time!")
-           
+
     
 def is_building_open(date, buildingName):
     weekDay = datetime.date(date.year, date.month, date.day).weekday()
@@ -106,10 +123,11 @@ def edit_reserve():
     pass
 
 def cancel_reserve():
-    roomNumber = '111'
+    roomNumber = '110'
     buildingName = 'Spark'
     startDate = datetime.datetime(2022, 2, 17, 8, 0, 0) # 2/20/2022 08:00:00
     deleteSQL = "DELETE FROM reservations WHERE roomnumber = '" + roomNumber + "' AND buildingname = '" + buildingName + "' AND starttime = '" + str(startDate) + "'"
     cursor.execute(deleteSQL)
+
 prototype_ui()
     
