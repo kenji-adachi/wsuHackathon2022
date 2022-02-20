@@ -1,5 +1,6 @@
 import psycopg2
 import base64
+import datetime
 
 decMessage = base64.b64decode("ZG9nczJjYXRzMA==").decode("utf-8")
 
@@ -32,11 +33,12 @@ def prototype_ui():
         if userInput == 4:
             cancel_reserve()
         
-connection.close()
+#connection.close()
 
 def view_avail():
-    sql = '''SELECT * FROM room'''
-    cursor.execute(sql)
+    print ("** Available **")
+    sql = '''SELECT * FROM reservations'''
+    cursor.execute(sql) 
     rows = cursor.fetchall()
 
     for row in rows:
@@ -46,7 +48,41 @@ def view_avail():
     
 
 def reserve():
-    pass
+    sql = '''
+            INSERT INTO reservations(roomnumber, buildingname, starttime, endtime)
+            VALUES(110, 'Spark', '03:00:00', '06:00:00')
+        '''
+
+
+    startTime = ''
+    dateDay = 19 # This will all be in one variable
+    dateMonth = 2
+    dateYear = 2022
+    weekDay = datetime.date(dateYear, dateDay, dateMonth).weekday()
+    buildingName = ''
+    buildingHoursSQL = '''
+            SELECT buildingname as buildingName FROM building_hours
+        '''
+    cursor.execute(buildingHoursSQL)
+    buildingHours = cursor.fetchall()
+    buildingWeekOpen = buildingHours[0][1] # hardcoded based off of the table design
+    buildingWeekClose = buildingHours[0][2]
+    buildingWeekendOpen = buildingHours[0][3]
+    buildingWeekendClose = buildingHours[0][4]
+
+    # check the building_hours table to see if the room is open
+    if weekDay <= 4: # week day (0 = day 1)
+        if startTime >= buildingWeekOpen and startTime <= buildingWeekClose:
+            try:
+                cursor.execute(sql)
+            except psycopg2.IntegrityError as e:
+                print("** An error has occurred! (Are you sure you entered the right room number?) **") 
+        else:
+            print("** This building is be closed during your reservation time! **")
+    
+    
+   
+
 
 def edit_reserve():
     pass
