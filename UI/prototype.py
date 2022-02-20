@@ -1,13 +1,13 @@
 import psycopg2
+import base64
 
-file = open("text.txt", "r")
-text = file.read()
+decMessage = base64.b64decode("ZG9nczJjYXRzMA==").decode("utf-8")
 
 connection = psycopg2.connect(
     host = "localhost",
     database = "cubhubs",
     user = "postgres",
-    password = text
+    password = decMessage
 )
 cursor = connection.cursor()
 
@@ -35,7 +35,15 @@ def prototype_ui():
 connection.close()
 
 def view_avail():
-    pass 
+    sql = '''SELECT * FROM room'''
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+
+    for row in rows:
+        for col in row:
+            print(col, end=' ')
+        print()
+    
 
 def reserve():
     pass
