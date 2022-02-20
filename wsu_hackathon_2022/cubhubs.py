@@ -29,7 +29,9 @@ class cubhubs(QMainWindow):
         #self.connectQuery()
         self.ui.tableTypeSelect.currentTextChanged.connect(self.tableTypeSelectionChange)
         self.ui.submitButton.clicked.connect(self.submitReservation)
+        self.ui.deleteButton.clicked.connect(self.deleteReservation)
         self.ui.buildingOptions.currentTextChanged.connect(self.buildingSelected)
+        self.ui.buildingOptions_2.currentTextChanged.connect(self.buildingSelected_2)
 
     def connectQuery(self):
         try:
@@ -53,8 +55,11 @@ class cubhubs(QMainWindow):
         buildingList = cursor.fetchall()
         for i in buildingList:
             self.ui.buildingOptions.addItem(i[0])
+            self.ui.buildingOptions_2.addItem(i[0])
         self.ui.buildingOptions.setCurrentIndex(-1)
         self.ui.buildingOptions.clearEditText()
+        self.ui.buildingOptions_2.setCurrentIndex(-1)
+        self.ui.buildingOptions_2.clearEditText()
 
         #roomState
         self.ui.roomStateOption.addItem('1')
@@ -62,7 +67,6 @@ class cubhubs(QMainWindow):
         self.ui.roomStateOption.setCurrentIndex(-1)
         self.ui.roomStateOption.clearEditText()
 
-        self.ui.label_7.setText(" ")
     
     def tableTypeSelectionChange(self):
         typeSelection = self.ui.tableTypeSelect.currentText()
@@ -115,8 +119,19 @@ class cubhubs(QMainWindow):
         self.ui.reserveStartTime.clear()
         self.ui.reserveEndTime.clear()
         self.ui.roomStateOption.setCurrentIndex(-1)
-        #show text
-        self.ui.label_7.setText("Successfully Submitted!")
+
+    def deleteReservation(self):
+        buildingChoice_2 = self.ui.buildingOptions_2.currentText()
+        print(buildingChoice_2)
+        roomChoice_2 = self.ui.roomOptions_2.currentText()
+        print(roomChoice_2)
+        reserveStart_2 = self.ui.reserveStartDate.text()
+        print(reserveStart_2)
+        #clear all inputs
+        self.ui.buildingOptions_2.setCurrentIndex(-1)
+        self.ui.roomOptions_2.setCurrentIndex(-1)
+        self.ui.reserveStartDate.clear()
+    
     
     def buildingSelected(self):
         #Rooms
@@ -129,6 +144,18 @@ class cubhubs(QMainWindow):
             self.ui.roomOptions.addItem(i[0])
         self.ui.roomOptions.setCurrentIndex(-1)
         self.ui.roomOptions.clearEditText()
+
+    def buildingSelected_2(self):
+        #Rooms
+        self.ui.roomOptions_2.clear()
+        selectedBuilding_2 = self.ui.buildingOptions_2.currentText()
+        roomSQL_2 = "SELECT distinct roomnumber FROM room WHERE buildingname ='" + selectedBuilding_2 + "'"
+        cursor.execute(roomSQL_2)
+        roomList_2 = cursor.fetchall()
+        for i in roomList_2:
+            self.ui.roomOptions_2.addItem(i[0])
+        self.ui.roomOptions_2.setCurrentIndex(-1)
+        self.ui.roomOptions_2.clearEditText()
 
         
 
