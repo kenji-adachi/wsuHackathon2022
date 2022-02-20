@@ -1,39 +1,40 @@
 
 CREATE TABLE building (
-    buildingName VARCHAR(50) PRIMARY KEY
+    buildingname VARCHAR(50) PRIMARY KEY
 );
 
 CREATE TABLE building_hours (
-    buildingName VARCHAR(50) PRIMARY KEY,
+    buildingname VARCHAR(50) PRIMARY KEY,
     weekhoursopen TIME,
     weekhoursclose TIME,
     weekendhoursopen TIME,
     weekendhoursclose TIME,
-    FOREIGN KEY (buildingName) REFERENCES building(buildingName)
+    FOREIGN KEY (buildingname) REFERENCES building(buildingname)
 );
 
 CREATE TABLE room (
-    roomNumber VARCHAR(8),
+    roomnumber VARCHAR(8),
     pop INTEGER,
-    roomDescription VARCHAR(255),
+    roomdescription VARCHAR(255),
     buildingName VARCHAR(50),
-    PRIMARY KEY (roomNumber, buildingName),
-    FOREIGN KEY (buildingName) REFERENCES building(buildingName)
+    PRIMARY KEY (roomnumber, buildingname),
+    FOREIGN KEY (buildingname) REFERENCES building(buildingname)
 );
 
 CREATE TABLE reservations (
-    roomNumber VARCHAR(8),
-    buildingName VARCHAR(50),
-    startTime TIME,
-    endTime TIME,
-    PRIMARY KEY (roomNumber, buildingName),
-    FOREIGN KEY (roomNumber, buildingName) REFERENCES room(roomNumber,buildingName)
+    roomnumber VARCHAR(8),
+    buildingname VARCHAR(50),
+    starttime CHAR(21),
+    endtime CHAR(21),
+    roomstate INTEGER,
+    PRIMARY KEY (roomnumber, buildingname),
+    FOREIGN KEY (roomnumber, buildingname) REFERENCES room(roomnumber,buildingname)
 );
 
 CREATE TABLE tags (
-    roomNumber VARCHAR(8),
-    buildingName VARCHAR(50),
-    tagName VARCHAR(15),
-    PRIMARY KEY (roomNumber, buildingName),
-    FOREIGN KEY (roomNumber, buildingName) REFERENCES room(roomNumber,buildingName)
+    roomnumber VARCHAR(8),
+    buildingname VARCHAR(50),
+    tagname VARCHAR(15),
+    PRIMARY KEY (roomnumber, buildingname),
+    FOREIGN KEY (roomnumber, buildingname) REFERENCES room(roomnumber,buildingname)
 );
